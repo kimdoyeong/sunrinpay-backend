@@ -1,6 +1,7 @@
-import { model, Schema } from "mongoose";
+import { model, Schema, Model, Document } from "mongoose";
 import { randomBytes, pbkdf2Sync } from "crypto";
 import createError from "../lib/error/createError";
+import * as uniqueValidator from "mongoose-unique-validator";
 
 const userSchema = new Schema({
   id: {
@@ -13,9 +14,15 @@ const userSchema = new Schema({
     required: true,
     set(v: string) {
       const encKey = randomBytes(64);
-      this.encKey = encKey;
+      this.encKey = encKey.toString("base64");
 
-      return pbkdf2Sync(v, encKey.toString("base64"), 10000, 64, "sha512");
+      return pbkdf2Sync(
+        v,
+        encKey.toString("base64"),
+        10000,
+        64,
+        "sha512"
+      ).toString("base64");
     }
   },
   name: {
@@ -28,6 +35,11 @@ const userSchema = new Schema({
   },
   encKey: {
     type: String
+  },
+  permission: {
+    type: [String],
+    enum: ["default", "admin", "store"],
+    default: ["default"]
   }
 });
 
@@ -38,5 +50,28 @@ userSchema.pre("save", function(next) {
   }
   next();
 });
-const User = model("user", userSchema);
+userSchema.plugin(uniqueValidator, {
+  message: "이미 존재하는 {PATH}입니다.",
+  expose: true
+});
+userSchema.methods.comparePassword = function(userPw: string) {
+  const { password, encKey } = this as UserDocument;
+  console.log(password, encKey);
+  const userPwEnc = pbkdf2Sync(userPw, encKey, 10000, 64, "sha512").toString(
+    "base64"
+  );
+
+  return password === userPwEnc;
+};
+
+export interface UserDocument extends Document {
+  id: string;
+  password: string;
+  name: string;
+  no: number;
+  encKey: string;
+  comparePassword(userPw: string): boolean;
+}
+
+const User: Model<UserDocument> = model("user", userSchema);
 export default User;
