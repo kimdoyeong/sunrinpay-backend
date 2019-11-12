@@ -1,7 +1,7 @@
 import { Router } from "express";
 import wrapAsync from "../lib/wrapAsync";
 import { autorized } from "../lib/middlewares/auth";
-import { generatePaymentToken } from "../lib/paymentToken";
+import { createPayment } from "../lib/createPayment";
 
 const router = Router();
 
@@ -10,11 +10,9 @@ router.post(
   autorized,
   wrapAsync(async (req, res) => {
     const { user } = req as any;
-    const token = await generatePaymentToken(user._id);
+    const data = await createPayment(user._id);
 
-    res.json({
-      token
-    });
+    res.json(data);
   })
 );
 export default router;
