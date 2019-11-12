@@ -3,6 +3,8 @@ import * as cors from "cors";
 import * as bodyParser from "body-parser";
 import user from "./routes/user";
 import auth from "./routes/auth";
+import payment from "./routes/payment";
+
 import env from "./lib/env";
 
 const app = express();
@@ -11,7 +13,7 @@ app.use(bodyParser.json());
 
 app.use("/user", user);
 app.use("/auth", auth);
-
+app.use("/payment", payment);
 const errorHandler: express.ErrorRequestHandler = (err, req, res, next) => {
   if (env === "development" || !err.expose) console.error(err);
   const status = err.status || 500;
