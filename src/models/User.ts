@@ -56,7 +56,6 @@ userSchema.plugin(uniqueValidator, {
 });
 userSchema.methods.comparePassword = function(userPw: string) {
   const { password, encKey } = this as UserDocument;
-  console.log(password, encKey);
   const userPwEnc = pbkdf2Sync(userPw, encKey, 10000, 64, "sha512").toString(
     "base64"
   );

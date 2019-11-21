@@ -15,6 +15,7 @@ export async function createPayment(userId: string) {
 
   return {
     token: "sunrinpay:" + payment._id,
-    expiredAt: payment.createdAt + 1000 * 60 * 5
+    expiredAt: payment.createdAt + 1000 * 60 * 5,
+    code: payment.code
   };
 }

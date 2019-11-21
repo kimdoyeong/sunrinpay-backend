@@ -13,7 +13,7 @@ function collection() {
   }).exec();
 }
 function cron() {
-  const task = schedule("0 * * * *", collection);
+  const task = schedule("*/5 * * * *", collection);
   collection();
   task.start();
 }
