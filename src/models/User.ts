@@ -73,4 +73,5 @@ export interface UserDocument extends Document {
 }
 
 const User: Model<UserDocument> = model("user", userSchema);
+
 export default User;
