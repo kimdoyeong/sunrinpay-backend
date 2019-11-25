@@ -4,6 +4,7 @@ import * as bodyParser from "body-parser";
 import user from "./routes/user";
 import auth from "./routes/auth";
 import payment from "./routes/payment";
+import admin from "./routes/admin";
 
 import env from "./lib/env";
 
@@ -14,6 +15,7 @@ app.use(bodyParser.json());
 app.use("/user", user);
 app.use("/auth", auth);
 app.use("/payment", payment);
+app.use("/admin", admin);
 const errorHandler: express.ErrorRequestHandler = (err, req, res, next) => {
   if (env === "development" || !err.expose) console.error(err);
   const status = err.status || 500;

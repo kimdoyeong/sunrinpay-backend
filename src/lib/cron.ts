@@ -4,7 +4,7 @@ import Payment from "../models/Payment";
 function collection() {
   const date = new Date();
   console.log(
-    `Delete garbage payment per hour ${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+    `Delete garbage payment per 5 minutes ${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
   );
   Payment.deleteMany({
     createdAt: {

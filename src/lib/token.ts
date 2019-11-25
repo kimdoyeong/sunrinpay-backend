@@ -19,7 +19,7 @@ export function generateToken(data: tokenData) {
 }
 
 export function validateToken(token: string) {
-  return new Promise<object>((resolve, reject) => {
+  return new Promise<tokenData>((resolve, reject) => {
     jwt.verify(token, TOKEN_KEY, (err, data) => {
       if (err) {
         if (err.name === "TokenExpiredError") {
@@ -36,7 +36,7 @@ export function validateToken(token: string) {
         return;
       }
 
-      resolve(data as object);
+      resolve(data as tokenData);
     });
   });
 }
