@@ -34,6 +34,10 @@ const storeSchema = new Schema({
   },
   encKey: {
     type: String
+  },
+  accreditation: {
+    type: Boolean,
+    default: false
   }
 });
 
