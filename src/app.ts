@@ -5,6 +5,7 @@ import user from "./routes/user";
 import auth from "./routes/auth";
 import payment from "./routes/payment";
 import admin from "./routes/admin";
+import store from "./routes/store";
 
 import env from "./lib/env";
 
@@ -16,6 +17,8 @@ app.use("/user", user);
 app.use("/auth", auth);
 app.use("/payment", payment);
 app.use("/admin", admin);
+app.use("/store", store);
+
 const errorHandler: express.ErrorRequestHandler = (err, req, res, next) => {
   if (env === "development" || !err.expose) console.error(err);
   const status = err.status || 500;

@@ -3,7 +3,7 @@ import { validateToken } from "../token";
 import createError from "../error/createError";
 import User from "../../models/User";
 
-const headerUndefinedError = createError(
+export const headerUndefinedError = createError(
   "x-access-token 헤더가 필요합니다.",
   400
 );
