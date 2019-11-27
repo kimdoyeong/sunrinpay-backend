@@ -3,7 +3,7 @@ import wrapAsync from "../lib/wrapAsync";
 import { generateToken } from "../lib/token";
 import createError from "../lib/error/createError";
 import User, { UserDocument } from "../models/User";
-import { autorized } from "../lib/middlewares/auth";
+import { authorized } from "../lib/middlewares/auth";
 
 const router = Router();
 
@@ -41,7 +41,7 @@ router.post(
 
 router.get(
   "/",
-  autorized,
+  authorized,
   wrapAsync(async (req, res) => {
     const _id = (req as any).user._id;
     const user = await User.findById(_id, ["name", "no", "id", "permission"]);

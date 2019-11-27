@@ -7,7 +7,7 @@ export const headerUndefinedError = createError(
   "x-access-token 헤더가 필요합니다.",
   400
 );
-export const autorized: RequestHandler = (req, res, next) => {
+export const authorized: RequestHandler = (req, res, next) => {
   (async () => {
     const token = req.headers["x-access-token"];
     if (!token) {
@@ -21,7 +21,7 @@ export const autorized: RequestHandler = (req, res, next) => {
   });
 };
 
-export const adminAutorized: RequestHandler = (req, res, next) => {
+export const adminAuthorized: RequestHandler = (req, res, next) => {
   (async () => {
     const token = req.headers["x-access-token"];
     if (!token) throw headerUndefinedError;

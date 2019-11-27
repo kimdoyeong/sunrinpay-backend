@@ -1,13 +1,13 @@
 import { Router } from "express";
 import wrapAsync from "../lib/wrapAsync";
-import { autorized } from "../lib/middlewares/auth";
+import { authorized } from "../lib/middlewares/auth";
 import { createPayment } from "../lib/createPayment";
 
 const router = Router();
 
 router.post(
   "/qr",
-  autorized,
+  authorized,
   wrapAsync(async (req, res) => {
     const { user } = req as any;
     const data = await createPayment(user._id);
