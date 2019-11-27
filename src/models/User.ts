@@ -40,6 +40,10 @@ const userSchema = new Schema({
     type: [String],
     enum: ["default", "admin"],
     default: ["default"]
+  },
+  credit: {
+    type: Number,
+    default: 0
   }
 });
 
@@ -69,6 +73,7 @@ export interface UserDocument extends Document {
   name: string;
   no: number;
   encKey: string;
+  credit: number;
   comparePassword(userPw: string): boolean;
 }
 
