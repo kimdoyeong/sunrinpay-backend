@@ -6,6 +6,7 @@ import auth from "./routes/auth";
 import payment from "./routes/payment";
 import admin from "./routes/admin";
 import store from "./routes/store";
+import onlinestore from "./routes/onlinestore";
 
 import env from "./lib/env";
 
@@ -18,6 +19,7 @@ app.use("/auth", auth);
 app.use("/payment", payment);
 app.use("/admin", admin);
 app.use("/store", store);
+app.use("/onlinestore", onlinestore);
 
 const errorHandler: express.ErrorRequestHandler = (err, req, res, next) => {
   if (env === "development" || !err.expose) console.error(err);
@@ -33,4 +35,5 @@ const errorHandler: express.ErrorRequestHandler = (err, req, res, next) => {
   });
 };
 app.use(errorHandler);
+
 export default app;

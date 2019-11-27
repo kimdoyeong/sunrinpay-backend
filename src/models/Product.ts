@@ -1,6 +1,6 @@
 import { Schema, model, Document, models } from "mongoose";
 
-const OnlineStoreSchema = new Schema({
+const ProductSchema = new Schema({
   title: {
     type: String,
     required: true,
@@ -11,10 +11,10 @@ const OnlineStoreSchema = new Schema({
     required: true
   },
   cost: {
-    type: String,
+    type: Number,
     required: true
   },
-  remain: {
+  stock: {
     type: Number,
     required: true
   },
@@ -24,16 +24,14 @@ const OnlineStoreSchema = new Schema({
   }
 });
 
-export interface OnlineStoreDocument extends Document {
+export interface ProductDocument extends Document {
   title: string;
   content: string;
-  cost: string;
-  remain: number;
+  cost: number;
+  stock: number;
+  img: string;
 }
 
-const OnlineStore = model<OnlineStoreDocument>(
-  "onlineStore",
-  OnlineStoreSchema
-);
+const Product = model<ProductDocument>("product", ProductSchema);
 
-export default OnlineStore;
+export default Product;
