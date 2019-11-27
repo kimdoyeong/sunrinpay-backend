@@ -6,7 +6,7 @@ const PaymentSchema = new Schema({
   },
   createdAt: {
     type: Number,
-    default: Date.now
+    default: Date.now()
   },
   code: {
     type: String
