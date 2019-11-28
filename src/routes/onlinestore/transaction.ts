@@ -2,10 +2,10 @@ import { Router } from "express";
 import wrapAsync from "../../lib/wrapAsync";
 import createError from "../../lib/error/createError";
 import User, { UserDocument } from "../../models/User";
-import { authorized } from "../../lib/middlewares/auth";
+import { authorized, adminAuthorized } from "../../lib/middlewares/auth";
 import Product from "../../models/Product";
 import OnlinePayment from "../../models/OnlinePayment";
-import jwt from "jsonwebtoken";
+import { generateToken } from "../../lib/token";
 
 const router = Router();
 
@@ -44,8 +44,32 @@ router.post(
     });
     await onlinePayment.save();
 
-    const paymentToken = jwt.sign();
+    await User.findOneAndUpdate(
+      { _id },
+      { $set: { credit: user.credit - product.cost * amount } }
+    );
+
+    await Product.findOneAndUpdate(
+      { _id: productid },
+      { $set: { stock: product.stock - amount } }
+    );
+
+    const payload: any = {
+      userid: _id,
+      product: productid,
+      paymentid: onlinePayment._id
+    };
+
+    const paymentToken = generateToken(payload);
+
+    res.status(200).json({ token: paymentToken });
   })
+);
+
+router.post(
+  "/verify",
+  adminAuthorized,
+  wrapAsync(async (req, res) => {})
 );
 
 export default router;

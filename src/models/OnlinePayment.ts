@@ -22,6 +22,10 @@ const OnlinePaymentSchema = new Schema({
   amount: {
     type: Number,
     default: 1
+  },
+  accepted: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -30,6 +34,7 @@ export interface OnlinePaymentDocument extends Document {
   createdAt: Date;
   product: string;
   amount: number;
+  accepted: boolean;
 }
 
 const OnlinePayment = model<OnlinePaymentDocument>(
