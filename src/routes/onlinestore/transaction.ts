@@ -6,7 +6,11 @@ import { authorized, adminAuthorized } from "../../lib/middlewares/auth";
 import Product from "../../models/Product";
 import OnlinePayment from "../../models/OnlinePayment";
 import { generateToken } from "../../lib/token";
-import { onlineStoreTokenGenerate,onlineStoreTokenVerify, OnlineStoreToken } from '../../lib/onlineStoreToken'
+import {
+  onlineStoreTokenGenerate,
+  onlineStoreTokenVerify,
+  OnlineStoreToken
+} from "../../lib/onlineStoreToken";
 
 const router = Router();
 
@@ -59,7 +63,7 @@ router.post(
       userid: _id,
       product: productid,
       paymentid: onlinePayment._id,
-      type: 'onlinestore'
+      type: "onlinestore"
     };
 
     const paymentToken = onlineStoreTokenGenerate(payload);
@@ -72,21 +76,25 @@ router.post(
   "/recieve",
   adminAuthorized,
   wrapAsync(async (req, res) => {
-    const token: string = (req.headers['x-access-token']).toString();
-    if(!token) throw createError ("필수 항목이 존재하지 않습니다.",400);
+    const token: string = req.headers["x-access-token"].toString();
+    if (!token) throw createError("필수 항목이 존재하지 않습니다.", 400);
 
-    const tokenValue: any = await onlineStoreTokenVerify(token)
+    const tokenValue: any = await onlineStoreTokenVerify(token);
 
-    const onlinePayment = await OnlinePayment.findOne({_id:tokenValue.paymentid});
-    if(onlinePayment.accepted === true){
-      throw createError("이미 사용된 코드입니다.",403)
+    const onlinePayment = await OnlinePayment.findOne({
+      _id: tokenValue.paymentid
+    });
+    if (onlinePayment.accepted === true) {
+      throw createError("이미 사용된 코드입니다.", 403);
     }
-    await OnlinePayment.findOneAndUpdate({_id :tokenValue.paymentid} , 
+    await OnlinePayment.findOneAndUpdate(
+      { _id: tokenValue.paymentid },
       {
         $set: {
-        accepted : true
-    }
-  });
+          accepted: true
+        }
+      }
+    );
 
     res.status(200).json(...tokenValue);
   })
