@@ -9,7 +9,7 @@ const router = Router();
 
 router.get("/", async (req, res, next) => {
   try {
-    let sendArray: Array<Object>;
+    let sendArray: Array<Object> = new Array();
     const onlineStore: Array<Object> = await OnlineStore.find();
     if (!onlineStore) {
       createError("데이터가 없습니다.", 404);
@@ -24,5 +24,6 @@ router.get("/", async (req, res, next) => {
     next(error);
   }
 });
+
 
 export default router;
