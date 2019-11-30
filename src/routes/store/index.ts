@@ -1,8 +1,13 @@
 import { Router } from "express";
 import wrapAsync from "../../lib/wrapAsync";
-import Store from "../../models/Store";
+import Store, { StoreDocument } from "../../models/Store";
 import { RequiredError, AuthError } from "../../lib/error";
 import { storeTokenGenerate } from "../../lib/storeToken";
+import { storeAuthorized } from "../../lib/middlewares/auth";
+import Payment, { PaymentDocument } from "../../models/Payment";
+import User from "../../models/User";
+import createError from "../../lib/error/createError";
+import Transaction from "../../models/Transaction";
 
 const router = Router();
 router.post(
@@ -33,6 +38,46 @@ router.post(
 
     res.json({
       token: storeTokenGenerate(store)
+    });
+  })
+);
+router.post(
+  "/progress",
+  storeAuthorized,
+  wrapAsync(async (req, res) => {
+    const store: StoreDocument = (req as any).user;
+    const {
+      type,
+      data,
+      price
+    }: { type: "QR" | "CODE"; data: string; price: number } = req.body;
+
+    let payment: PaymentDocument;
+
+    if (type === "QR") {
+      payment = await Payment.findById(data.replace("sunrinpay:", ""));
+    } else {
+      payment = await Payment.findOne({ code: data });
+    }
+    const user = await User.findById(payment.issuedBy);
+    if (!user) return;
+    if (user.credit < price) {
+      throw createError("잔액이 부족합니다.", 400);
+    }
+    await user.updateOne({
+      credit: user.credit - price
+    });
+
+    const transaction = new Transaction({
+      user: user._id,
+      store: store._id,
+      sum: -price
+    });
+    await transaction.save();
+    await payment.remove();
+
+    res.json({
+      success: true
     });
   })
 );
