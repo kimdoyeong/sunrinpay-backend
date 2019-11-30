@@ -49,8 +49,9 @@ export interface StoreDocument extends Document {
   encKey: string;
 }
 
-storeSchema.pre("save", true, function(next) {
+storeSchema.pre("save", function(next) {
   models["store"].findOne({ id: this.id }, function(err, user) {
+    console.log(user);
     if (err) next(err);
     if (user) next(UserAlreadyExist);
     else next();
