@@ -44,7 +44,13 @@ router.get(
   authorized,
   wrapAsync(async (req, res) => {
     const _id = (req as any).user._id;
-    const user = await User.findById(_id, ["name", "no", "id", "permission"]);
+    const user = await User.findById(_id, [
+      "name",
+      "no",
+      "id",
+      "permission",
+      "credit"
+    ]);
 
     res.json({ user });
   })
