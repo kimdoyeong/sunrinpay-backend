@@ -59,6 +59,7 @@ router.post(
     } else {
       payment = await Payment.findOne({ code: data });
     }
+    if (!payment) throw createError("없는 결제 정보입니다.", 404);
     const user = await User.findById(payment.issuedBy);
     if (!user) return;
     if (user.credit < price) {
