@@ -14,6 +14,10 @@ const transactionSchema = new Schema({
   sum: {
     type: Number,
     required: true
+  },
+  at: {
+    type: Number,
+    default: Date.now
   }
 });
 

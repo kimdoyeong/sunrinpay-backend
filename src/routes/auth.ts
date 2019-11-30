@@ -4,6 +4,7 @@ import { generateToken } from "../lib/token";
 import createError from "../lib/error/createError";
 import User, { UserDocument } from "../models/User";
 import { authorized } from "../lib/middlewares/auth";
+import Transaction from "../models/Transaction";
 
 const router = Router();
 
@@ -53,6 +54,25 @@ router.get(
     ]);
 
     res.json({ user });
+  })
+);
+router.get(
+  "/transactions",
+  authorized,
+  wrapAsync(async (req, res) => {
+    const { _id } = (req as any).user;
+    const transactions = await Transaction.find(
+      {
+        user: _id
+      },
+      ["store", "sum", "at"]
+    )
+      .populate("store", ["name"])
+      .sort("-at");
+
+    res.json({
+      data: transactions
+    });
   })
 );
 export default router;
