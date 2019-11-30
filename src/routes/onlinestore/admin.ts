@@ -20,7 +20,7 @@ router.post(
       content,
       cost,
       stock,
-      img: ""
+      img: "http://marktwo.iptime.org:35492/list/HDD1/SUNRINT_SHARE/static/404error.png"
     });
 
     await product.save();
