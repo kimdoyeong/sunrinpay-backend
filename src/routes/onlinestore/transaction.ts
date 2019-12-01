@@ -65,8 +65,9 @@ router.post("/", authorized, async (req, res, next) => {
 
     const payload: any = {
       userid: user._id,
-      product: productdata._id,
+      product: productdata.title,
       paymentid: onlinePayment._id,
+      amount,
       type: "onlinestore"
     };
 
@@ -87,10 +88,12 @@ router.post(
   "/recieve",
   adminAuthorized,
   wrapAsync(async (req, res) => {
-    const token: string = req.headers["x-access-token"].toString();
-    if (!token) throw createError("필수 항목이 존재하지 않습니다.", 400);
+    const token: any = req.headers["x-access-token"];
+    const { productToken } = req.body as any;
+    if (!token || !productToken)
+      throw createError("필수 항목이 존재하지 않습니다.", 400);
 
-    const tokenValue: any = await onlineStoreTokenVerify(token);
+    const tokenValue: any = await onlineStoreTokenVerify(productToken);
 
     const onlinePayment = await OnlinePayment.findOne({
       _id: tokenValue.paymentid
@@ -98,6 +101,7 @@ router.post(
     if (onlinePayment.accepted === true) {
       throw createError("이미 사용된 코드입니다.", 403);
     }
+
     await OnlinePayment.findOneAndUpdate(
       { _id: tokenValue.paymentid },
       {
@@ -107,7 +111,7 @@ router.post(
       }
     );
 
-    res.status(200).json(...tokenValue);
+    res.status(200).json({ payment: tokenValue });
   })
 );
 
