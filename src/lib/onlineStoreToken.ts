@@ -11,12 +11,13 @@ export interface OnlineStoreToken {
   type: string;
 }
 
-export function onlineStoreTokenGenerate(onlineStoreData: OnlineStoreToken) {
-  const { userid, product, paymentid } = onlineStoreData;
-  const data: OnlineStoreToken = {
+export function onlineStoreTokenGenerate(onlineStoreData: any) {
+  const { userid, product, paymentid, productid } = onlineStoreData;
+  const data: any = {
     userid,
     product,
     paymentid,
+    productid,
     type: "onlinestore"
   };
   return jwt.sign(data, process.env.TOKEN_KEY || "tokenkey", {
@@ -25,7 +26,7 @@ export function onlineStoreTokenGenerate(onlineStoreData: OnlineStoreToken) {
 }
 
 export async function onlineStoreTokenVerify(token: string) {
-  const data: OnlineStoreToken = jwt.decode(token) as OnlineStoreToken;
+  const data: OnlineStoreToken = jwt.decode(token) as any;
 
   if (data.type !== "onlinestore") throw TokenValidError;
   const onlineStoreData = await OnlinePayment.findById(data.paymentid);

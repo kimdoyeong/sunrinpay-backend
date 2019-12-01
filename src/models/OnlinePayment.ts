@@ -6,6 +6,7 @@ import {
   SchemaType,
   SchemaTypeOpts
 } from "mongoose";
+import { string } from "prop-types";
 const OnlinePaymentSchema = new Schema({
   issuedBy: {
     type: SchemaTypes.ObjectId,
@@ -19,6 +20,10 @@ const OnlinePaymentSchema = new Schema({
     type: SchemaTypes.ObjectId,
     required: true
   },
+  productName: {
+    type: String,
+    required: true
+  },
   amount: {
     type: Number,
     default: 1
@@ -28,6 +33,9 @@ const OnlinePaymentSchema = new Schema({
     default: false
   },
   token: {
+    type: String
+  },
+  paymentid: {
     type: String
   }
 });
@@ -39,6 +47,7 @@ export interface OnlinePaymentDocument extends Document {
   amount: number;
   accepted: boolean;
   token: string;
+  paymentid: string;
 }
 
 const OnlinePayment = model<OnlinePaymentDocument>(

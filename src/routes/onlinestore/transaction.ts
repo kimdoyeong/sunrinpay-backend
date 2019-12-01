@@ -45,6 +45,7 @@ router.post("/", authorized, async (req, res, next) => {
       issuedBy: tokenvalue._id,
       createdAt: Date.now(),
       product: productdata._id,
+      productName: productdata.title,
       amount
     });
 
@@ -66,16 +67,20 @@ router.post("/", authorized, async (req, res, next) => {
     const payload: any = {
       userid: user._id,
       product: productdata.title,
+      productid: productdata._id,
       paymentid: onlinePayment._id,
       amount,
       type: "onlinestore"
     };
+    console.log(onlinePayment._id);
 
     const paymentToken = onlineStoreTokenGenerate(payload);
 
+    console.log(paymentToken, payload);
+
     await OnlinePayment.findOneAndUpdate(
       { _id: onlinePayment._id },
-      { $set: { token: paymentToken } }
+      { $set: { token: paymentToken, paymentid: onlinePayment._id } }
     );
 
     res.status(200).json({ token: paymentToken });
@@ -86,7 +91,6 @@ router.post("/", authorized, async (req, res, next) => {
 
 router.post(
   "/recieve",
-  adminAuthorized,
   wrapAsync(async (req, res) => {
     const token: any = req.headers["x-access-token"];
     const { productToken } = req.body as any;
@@ -95,9 +99,11 @@ router.post(
 
     const tokenValue: any = await onlineStoreTokenVerify(productToken);
 
-    const onlinePayment = await OnlinePayment.findOne({
+    const onlinePayment: any = await OnlinePayment.findOne({
       _id: tokenValue.paymentid
     });
+
+    console.log(onlinePayment, tokenValue.paymentid, tokenValue);
     if (onlinePayment.accepted === true) {
       throw createError("이미 사용된 코드입니다.", 403);
     }
