@@ -73,7 +73,7 @@ export interface UserDocument extends Document {
   name: string;
   no: number;
   encKey: string;
-  credit: number;
+  credit: any;
   comparePassword(userPw: string): boolean;
 }
 

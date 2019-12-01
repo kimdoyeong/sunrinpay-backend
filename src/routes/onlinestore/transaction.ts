@@ -5,72 +5,83 @@ import User, { UserDocument } from "../../models/User";
 import { authorized, adminAuthorized } from "../../lib/middlewares/auth";
 import Product from "../../models/Product";
 import OnlinePayment from "../../models/OnlinePayment";
-import { generateToken } from "../../lib/token";
+import { generateToken, validateToken } from "../../lib/token";
 import {
   onlineStoreTokenGenerate,
-  onlineStoreTokenVerify,
-  OnlineStoreToken
+  onlineStoreTokenVerify
 } from "../../lib/onlineStoreToken";
+import * as jwt from "jsonwebtoken";
 
 const router = Router();
 
-router.post(
-  "/",
-  authorized,
-  wrapAsync(async (req, res) => {
-    const { _id, productid, amount } = req.body;
-    const token = req.headers["x-access-token"];
-
-    if (!_id || !productid || !token) {
+router.post("/", authorized, async (req, res, next) => {
+  try {
+    const { product, amount } = req.body;
+    const token: any = req.headers["x-access-token"];
+    if (!token || !product || !amount) {
       return createError("필수 항목이 존재하지 않습니다.", 400);
     }
+    let tokenvalue: any;
+    try {
+      tokenvalue = await validateToken(token);
+    } catch (error) {
+      throw error;
+    }
 
-    const user = await User.findOne({ _id });
-
+    const user = await User.findOne({ _id: tokenvalue._id });
     if (!user) {
-      return createError("유저 데이터가 존재하지 않습니다.", 404);
+      throw createError("유저 데이터가 존재하지 않습니다.", 404);
     }
+    const productdata = await Product.findOne({ title: product });
 
-    const product = await Product.findOne({ _id: productid });
-
-    if (user.credit < product.cost * amount) {
-      return createError("잔고가 부족합니다.", 403);
+    if (user.credit < productdata.cost * amount) {
+      throw createError("잔고가 부족합니다.", 403);
     }
-    if (amount > product.stock) {
-      return createError("재고가 부족합니다.", 400);
+    if (amount > productdata.stock) {
+      throw createError("재고가 부족합니다.", 400);
     }
-    await User.findOneAndUpdate({ _id }, { cost: user.credit - product.cost });
 
     const onlinePayment = new OnlinePayment({
-      issuedBy: _id,
+      issuedBy: tokenvalue._id,
       createdAt: Date.now(),
-      product: productid,
+      product: productdata._id,
       amount
     });
+
     await onlinePayment.save();
 
+    const userRemainCredit: number = user.credit - productdata.cost * amount;
+
     await User.findOneAndUpdate(
-      { _id },
-      { $set: { credit: user.credit - product.cost * amount } }
+      { _id: user._id },
+      { $set: { credit: userRemainCredit } }
     );
 
+    const productRemainStock: number = productdata.stock - amount;
     await Product.findOneAndUpdate(
-      { _id: productid },
-      { $set: { stock: product.stock - amount } }
+      { _id: productdata._id },
+      { $set: { stock: productRemainStock } }
     );
 
     const payload: any = {
-      userid: _id,
-      product: productid,
+      userid: user._id,
+      product: productdata._id,
       paymentid: onlinePayment._id,
       type: "onlinestore"
     };
 
     const paymentToken = onlineStoreTokenGenerate(payload);
 
+    await OnlinePayment.findOneAndUpdate(
+      { _id: onlinePayment._id },
+      { $set: { token: paymentToken } }
+    );
+
     res.status(200).json({ token: paymentToken });
-  })
-);
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.post(
   "/recieve",
